@@ -33,8 +33,8 @@ public class x24528929_martinolaru_server {
         //do/while loop to run the server
         do{
             run();
-            while(true);
-        }
+        }while(true);
+        
     }
     //run method to handle client connections
     private static void run(){
@@ -45,6 +45,12 @@ public class x24528929_martinolaru_server {
             link = servSocket.accept();
             //increment client count
             clientCount++;
+            //create new client runnable 
+            ClientConnectionServer clientResource = new ClientConnectionServer("Client: " + clientCount, link);
+            //create new thread using clientResource
+            Thread t = new Thread(clientResource);
+            //start thread
+            t.start();
 
 
         }
