@@ -57,7 +57,7 @@ public class ClientConnectionServer implements Runnable {
                     String[] command = message.split(";", 5);
                     //if statement to make sure user inputs 5 fields
                     if (command.length < 5) {
-                        throw new InvalidCommandException("Input command must be 5 fields, each seperated by ';'!\nEXAMPLE: 'ACTION;MEMBER;WORKSHOP;DATE;TIME'...");
+                        throw new InvalidCommandException("Input command must be 5 fields, each seperated by ';'! | EXAMPLE: 'ACTION;MEMBER;WORKSHOP;DATE;TIME'...");
                     }
                     //creating and init variable off entries from the message split
                     String action = command[0].trim().toLowerCase();
@@ -125,6 +125,9 @@ public class ClientConnectionServer implements Runnable {
     }
 
     //method for validating booking fields that gets called when a user input his command, throws invalidcommandexceptiom
+    /*
+    WILL ADD MORE ADV INPUT VALIDATION HERE TO STATE WHAT VARIABLES ARE MISSING
+    */
     private void validateBookingFields(String memberName, String workshop, String date, String time) throws InvalidCommandException {
         //if all fields are empty, throws corresponding error msg
         if (memberName.isEmpty() && workshop.isEmpty() && date.isEmpty() && time.isEmpty()) {
