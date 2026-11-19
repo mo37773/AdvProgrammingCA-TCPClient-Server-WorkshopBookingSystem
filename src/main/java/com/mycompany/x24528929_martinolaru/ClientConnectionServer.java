@@ -18,16 +18,15 @@ import java.net.Socket;
 public class ClientConnectionServer implements Runnable {
 
     //declaring variables and init
-    String name = null;
-    Socket link = null;
-    //importing workshopbookingmanager as final so it can only be instantiated once
-    private final WorkshopBookingManager bookingManager = new WorkshopBookingManager();
-    int bookingCountId = 1;
+    private final String name;
+    private final Socket link;
+    private final WorkshopBookingManager bookingManager;
 
     //loaded constructor 
-    public ClientConnectionServer(String name, Socket link) {
+    public ClientConnectionServer(String name, Socket link, WorkshopBookingManager bookingManager) {
         this.name = name;
         this.link = link;
+        this.bookingManager = bookingManager;
     }
 
     //run method, overriding the one from the runnable interface 
@@ -76,34 +75,31 @@ public class ClientConnectionServer implements Runnable {
                     switch (action) {
                         //book action that validates using validateBookingFields and then calls book method from workshopbooking manager
                         case "book":
-                            //try/catch to catch duplicate booking?****
-                            //increment every time a booking is added so we can keep track of how they came in chronologically
-                            bookingCountId++;
-                                                 
                             //we validate the fields first before creating the workshop booking obj
                             validateBookingFields(memberName, workshop, date, time);
-                            
-                            WorkshopBooking b = new WorkshopBooking(bookingCountId,memberName,workshop,date,time);
-                            
+
+                            WorkshopBooking b = new WorkshopBooking(memberName, workshop, date, time);
+
                             //after booking is succesful it returns the string to confirm, if booking already exists should throw invalid command exception if booking already exists
                             reply = bookingManager.addBooking(b);
-                            
 
                             break;
                         //cancel action that validates using validateBookingFields and then calls cancel method from workshopbooking manager
                         case "cancel":
                             validateBookingFields(memberName, workshop, date, time);
-                            reply = "Cancel success";
+                            reply = bookingManager.cancelBooking(memberName, workshop, date, time);
 
                             break;
-                        //list action that validates and then calls cancel method from workshopbooking manager                            
+                        //list action that validates and then calls list method from workshopbooking manager                            
                         case "list":
+                            if (memberName.isEmpty() || memberName.trim().equalsIgnoreCase("-")) {
+                                throw new InvalidCommandException("You forgot the member name! Must be formatted as 'LIST;MEMBER;-;-;-'!!!");
+                            }
                             if (!workshop.equals("-") || !date.equals("-") || !time.equals("-")) {
-                                throw new InvalidCommandException("List command should be formatted as 'MEMBER;-;-;-");
+                                throw new InvalidCommandException("List command should be formatted as 'LIST;MEMBER;-;-;-");
                             }
                             //list all the workshops a certain member has booked
-                            bookingManager.listBookings(memberName);
-                            reply = "List success";
+                            reply = bookingManager.listBookings(memberName);
 
                             break;
                         default:
@@ -126,15 +122,19 @@ public class ClientConnectionServer implements Runnable {
             e.printStackTrace();
             //finally to close connection after try catch
         } finally {
-            //try catch that closes the link connection after stop, unless any error happens
-            try {
-                System.out.println("Closing connection with " + name + "...");
-                link.close();
-            } catch (IOException e) {
-                System.out.println("Unable to disconnect!!!");
-                System.exit(1);
+            //check if link is not null to prevent null pointer exception
+            if (link != null) {
+                //try catch that closes the link connection after stop, unless any error happens
+                try {
+                    System.out.println("Closing connection with " + name + "...");
+                    link.close();
+                } catch (IOException e) {
+                    System.out.println("Unable to disconnect!!!");
+                    e.printStackTrace();
 
+                }
             }
+
         }
 
     }
@@ -142,7 +142,7 @@ public class ClientConnectionServer implements Runnable {
     //method for validating booking fields that gets called when a user input his command, throws invalidcommandexceptiom
     /*
     WILL ADD MORE ADV INPUT VALIDATION HERE TO STATE WHAT VARIABLES ARE MISSING
-    */
+     */
     private void validateBookingFields(String memberName, String workshop, String date, String time) throws InvalidCommandException {
         //if all fields are empty, throws corresponding error msg
         if (memberName.isEmpty() && workshop.isEmpty() && date.isEmpty() && time.isEmpty()) {

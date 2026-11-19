@@ -53,7 +53,7 @@ public class x24528929_martinolaru_client {
                 String message = null;
                 String response = null;
                 //prompt user for input and accept
-                System.out.println("Enter a command, 'STOP' to close connection...");
+                System.out.println("Enter a command 'book/cancel/list/import' | 'STOP' to close connection...");
 
                 message = userEntry.readLine().trim();
 

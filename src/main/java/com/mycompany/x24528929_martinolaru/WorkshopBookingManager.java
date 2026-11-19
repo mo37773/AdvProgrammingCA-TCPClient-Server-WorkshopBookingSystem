@@ -16,6 +16,8 @@ public class WorkshopBookingManager {
 
     //using a hashmap of type <string, list<WorkshopBooking> to use a member name as a key and then have a list of booking objects as values
     private final ConcurrentHashMap<String, ArrayList<WorkshopBooking>> bookings = new ConcurrentHashMap<>();
+    //booking id that increments each time a booking is added
+    private int bookingId = 1;
 
     /*
     add booking method
@@ -42,6 +44,8 @@ public class WorkshopBookingManager {
                     throw new InvalidCommandException("ERROR: " + b.getMemberName() + " already has the booking: " + b.getWorkshopName() + " on " + b.getDate() + " at " + b.getTime() + "!");
                 }
             }
+            //set booking id to initial variable of 1, and increment every time one is added
+            b.setId(bookingId++);
             //adds new booking to the list
             existingBookings.add(b);
             //if else to correctly format booking / bookings. if more than 1, it will return the string with "BOOKINGS", if 1 it will return "BOOKING"
@@ -60,8 +64,35 @@ public class WorkshopBookingManager {
         }
     }
 
-    public String cancelBooking(String name, String workshop, String date, String time) {
-        return "";
+    /*
+        cancel booking feature, gets the list of bookings for a member, returns error msg if user has no bookings 
+        OR if user does not have that booking
+        or confirmation of the cancelled booking
+
+     */
+    public String cancelBooking(String name, String workshop, String date, String time) throws InvalidCommandException {
+        synchronized (bookings) {
+            ArrayList<WorkshopBooking> existingBookings = bookings.get(name.toLowerCase());
+            //if/else if / else to handle diff conditions
+            //this checks if the user has any bookings
+            if (existingBookings == null || existingBookings.isEmpty()) {
+                throw new InvalidCommandException("No bookings exist for this user!");
+            }//this will then check if the user has this specific bookings
+            else {
+                //for loop to loop through all the bookings
+                for (WorkshopBooking bToCancel : existingBookings) {
+                    //nested if to check if user booking exists, returns confirmation msg if true
+                    if (bToCancel.getWorkshopName().equalsIgnoreCase(workshop) && bToCancel.getDate().equalsIgnoreCase(date) && bToCancel.getTime().equalsIgnoreCase(time)) {
+                        existingBookings.remove(bToCancel);
+                        return "Cancelled. " + listBookings(name);
+                    }
+
+                }
+
+            }
+            //throws new invalidcommand exception if user does not have the booking
+            throw new InvalidCommandException(name + " does not currently have this booking!");
+        }
 
     }
 

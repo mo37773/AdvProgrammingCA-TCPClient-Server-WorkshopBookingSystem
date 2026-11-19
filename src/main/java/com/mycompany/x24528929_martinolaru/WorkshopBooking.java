@@ -17,8 +17,7 @@ public class WorkshopBooking {
     String time;
     
     //loaded constructor
-    public WorkshopBooking(int id, String memberName, String workshopName, String date, String time){
-        this.id = id;
+    public WorkshopBooking(String memberName, String workshopName, String date, String time){
         this.memberName = memberName;
         this.workshopName = workshopName;
         this.date = date;

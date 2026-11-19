@@ -10,61 +10,64 @@ import java.net.Socket;
 
 /**
  *
- * @author martin
- * TCP server class for Workshop booking system
+ * @author martin TCP server class for Workshop booking system
  */
 public class x24528929_martinolaru_server {
+
     //declaring variables
     private static final int PORT = 1234;
-    private static  ServerSocket servSocket;
+    private static ServerSocket servSocket;
     private static int clientCount = 0;
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
+        //importing workshopbookingmanager as final so it can only be instantiated once
+        final WorkshopBookingManager bookingManager = new WorkshopBookingManager();
         //try/catch to open server socket and listen for connections
         System.out.println("Opening port...\n");
-        try{
+        try {
             servSocket = new ServerSocket(PORT);
             System.out.println("Server started on port " + PORT + "\n");
-            }
-            catch(IOException e){
-                System.out.println("Unable to attach to port: " + PORT);
-                System.exit(1);
+        } catch (IOException e) {
+            System.out.println("Unable to attach to port: " + PORT);
+            System.exit(1);
         }
         //do/while loop to run the server
-        do{
-            run();
-        }while(true);
-        
+        do {
+            run(bookingManager);
+        } while (true);
+
     }
-    //run method to handle client connections
-    private static void run(){
+
+    //run method to handle client connections, passing the booking manager here so it can be in the loaded constructor and shared between multiple clients
+    private static void run(WorkshopBookingManager bookingManager) {
         Socket link = null;
         //try to accept client connection and increment client count
-        try{
+        try {
             //accept client connection
             link = servSocket.accept();
             //increment client count
             clientCount++;
             //create new client runnable 
-            ClientConnectionServer clientResource = new ClientConnectionServer("Client: " + clientCount, link);
+            ClientConnectionServer clientResource = new ClientConnectionServer("Client: " + clientCount, link, bookingManager);
             //create new thread using clientResource
             Thread t = new Thread(clientResource);
             //start thread
             t.start();
 
-
-        }
-        //catch IOException and close connection
-        catch(IOException e){
+        } //catch IOException and close connection
+        catch (IOException e) {
             e.printStackTrace();
-            try{
-                System.out.println("\n* Closing connection... *");
-                link.close();
+            //to catch a nullpointerconnection
+            if (link != null) {
+                try {
+                    System.out.println("\n* Closing connection... *");
+                    link.close();
+                } catch (IOException ex) {
+                    System.out.println("Unable to disconnect!");
+                    ex.printStackTrace();
+                }
             }
-            catch(IOException ex){
-                System.out.println("Unable to disconnect!");
-                ex.printStackTrace();
-            }
+
         }
 
     }
