@@ -69,9 +69,9 @@ public class WorkshopBooking {
         this.time = time;
     }
 
-    @Override
-    public String toString() {
-        return "WorkshopBooking{" + "memberName=" + memberName + ", workshopName=" + workshopName + ", date=" + date + ", time=" + time + '}';
+    //method for listing workshops to implement in booking manager
+    public String listWorkshops() {
+        return workshopName + " on " + date + " at " + time;
     }
 
 

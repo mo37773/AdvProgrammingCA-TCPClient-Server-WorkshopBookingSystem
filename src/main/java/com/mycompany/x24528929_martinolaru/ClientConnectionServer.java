@@ -20,6 +20,9 @@ public class ClientConnectionServer implements Runnable {
     //declaring variables and init
     String name = null;
     Socket link = null;
+    //importing workshopbookingmanager as final so it can only be instantiated once
+    private final WorkshopBookingManager bookingManager = new WorkshopBookingManager();
+    int bookingCountId = 1;
 
     //loaded constructor 
     public ClientConnectionServer(String name, Socket link) {
@@ -73,8 +76,18 @@ public class ClientConnectionServer implements Runnable {
                     switch (action) {
                         //book action that validates using validateBookingFields and then calls book method from workshopbooking manager
                         case "book":
+                            //try/catch to catch duplicate booking?****
+                            //increment every time a booking is added so we can keep track of how they came in chronologically
+                            bookingCountId++;
+                                                 
+                            //we validate the fields first before creating the workshop booking obj
                             validateBookingFields(memberName, workshop, date, time);
-                            reply = "Booking success";
+                            
+                            WorkshopBooking b = new WorkshopBooking(bookingCountId,memberName,workshop,date,time);
+                            
+                            //after booking is succesful it returns the string to confirm, if booking already exists should throw invalid command exception if booking already exists
+                            reply = bookingManager.addBooking(b);
+                            
 
                             break;
                         //cancel action that validates using validateBookingFields and then calls cancel method from workshopbooking manager
@@ -85,9 +98,11 @@ public class ClientConnectionServer implements Runnable {
                             break;
                         //list action that validates and then calls cancel method from workshopbooking manager                            
                         case "list":
-                            if (!date.equals("-") || !time.equals("-")) {
-                                throw new InvalidCommandException("List command should be formatted as 'MEMBER;WORKSHOP;-;-");
+                            if (!workshop.equals("-") || !date.equals("-") || !time.equals("-")) {
+                                throw new InvalidCommandException("List command should be formatted as 'MEMBER;-;-;-");
                             }
+                            //list all the workshops a certain member has booked
+                            bookingManager.listBookings(memberName);
                             reply = "List success";
 
                             break;
@@ -137,7 +152,7 @@ public class ClientConnectionServer implements Runnable {
             throw new InvalidCommandException("Member name cannot be empty or '-'!");
             //if workshop field is empty or "-", throws corresponding error msg
         } else if (workshop.isEmpty() || workshop.equals("-")) {
-            throw new InvalidCommandException("Workshop name cannot be empty or '-'!");
+            throw new InvalidCommandException("Workshop name cannot be empty or '-' for this action!");
             //if date field is empty or "-", throws corresponding error msg
         } else if (date.isEmpty() || date.equals("-")) {
             throw new InvalidCommandException("Date cannot be empty or '-' for this action!");
