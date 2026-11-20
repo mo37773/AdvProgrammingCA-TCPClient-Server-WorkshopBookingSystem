@@ -84,6 +84,9 @@ public class WorkshopBookingManager {
                     //nested if to check if user booking exists, returns confirmation msg if true
                     if (bToCancel.getWorkshopName().equalsIgnoreCase(workshop) && bToCancel.getDate().equalsIgnoreCase(date) && bToCancel.getTime().equalsIgnoreCase(time)) {
                         existingBookings.remove(bToCancel);
+                        if(existingBookings.isEmpty()){
+                            bookings.remove(name.toLowerCase());
+                        }
                         return "Cancelled. " + listBookings(name);
                     }
 
@@ -105,7 +108,7 @@ public class WorkshopBookingManager {
 
             //if/else to return clear if no bookings for that member or all the listings
             if (existingBookings == null || existingBookings.isEmpty()) {
-                return "";
+                return name + " has no bookings YET!";
             } else {
                 //nested if/else to correctly format booking/s
                 if (existingBookings.size() > 1) {

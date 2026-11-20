@@ -50,16 +50,16 @@ public class ClientConnectionServer implements Runnable {
                 }
                 //if to brak out of loop if stop is read
                 if (message.equalsIgnoreCase("stop")) {
-                    System.out.println("TERMINATE");
+                    out.println("TERMINATE");
                     break;
                 }
                 //try-catch to handle input validation, throws invalid command excpetion if error is caught
                 try {
                     //split the message by the semi colon, limit of 5 strings
-                    String[] command = message.split(";", 5);
+                    String[] command = message.split(";", -1);
                     //if statement to make sure user inputs 5 fields
-                    if (command.length < 5) {
-                        throw new InvalidCommandException("Input command must be 5 fields, each seperated by ';'! | EXAMPLE: 'ACTION;MEMBER;WORKSHOP;DATE;TIME'...");
+                    if (command.length != 5) {
+                        throw new InvalidCommandException("ERROR: Input command must be 5 fields, each seperated by ';'! | EXAMPLE: 'ACTION;MEMBER;WORKSHOP;DATE;TIME'...");
                     }
                     //creating and init variable off entries from the message split
                     String action = command[0].trim().toLowerCase();
@@ -93,17 +93,17 @@ public class ClientConnectionServer implements Runnable {
                         //list action that validates and then calls list method from workshopbooking manager                            
                         case "list":
                             if (memberName.isEmpty() || memberName.trim().equalsIgnoreCase("-")) {
-                                throw new InvalidCommandException("You forgot the member name! Must be formatted as 'LIST;MEMBER;-;-;-'!!!");
+                                throw new InvalidCommandException("ERROR: You forgot the member name! Must be formatted as 'LIST;MEMBER;-;-;-'");
                             }
                             if (!workshop.equals("-") || !date.equals("-") || !time.equals("-")) {
-                                throw new InvalidCommandException("List command should be formatted as 'LIST;MEMBER;-;-;-");
+                                throw new InvalidCommandException("ERROR: List command should be formatted as 'LIST;MEMBER;-;-;-'");
                             }
                             //list all the workshops a certain member has booked
                             reply = bookingManager.listBookings(memberName);
 
                             break;
                         default:
-                            throw new InvalidCommandException("Action command does not exist... Accepted commands: book/cancel/list/import ");
+                            throw new InvalidCommandException("ERROR: Action command does not exist... Accepted commands: book/cancel/list ");
 
                     }
                     //returns reply to client
@@ -113,7 +113,7 @@ public class ClientConnectionServer implements Runnable {
                 }
 
                 //this is just for the server console to show the message sent by client
-                System.out.println("Client: " + name + ", Message Received: " + message);
+                System.out.println(name + ", Message Received: " + message);
 
             }
 
@@ -146,19 +146,19 @@ public class ClientConnectionServer implements Runnable {
     private void validateBookingFields(String memberName, String workshop, String date, String time) throws InvalidCommandException {
         //if all fields are empty, throws corresponding error msg
         if (memberName.isEmpty() && workshop.isEmpty() && date.isEmpty() && time.isEmpty()) {
-            throw new InvalidCommandException("All fields are missing!! Command must be ACTION;MEMBER;WORKSHOP;DATE;TIME");
+            throw new InvalidCommandException("ERROR: All fields are missing!! Command must be ACTION;MEMBER;WORKSHOP;DATE;TIME");
         } //if name field is empty or "-", throws corresponding error msg
         else if (memberName.isEmpty() || memberName.equals("-")) {
-            throw new InvalidCommandException("Member name cannot be empty or '-'!");
+            throw new InvalidCommandException("ERROR: Member name cannot be empty or '-'!");
             //if workshop field is empty or "-", throws corresponding error msg
         } else if (workshop.isEmpty() || workshop.equals("-")) {
-            throw new InvalidCommandException("Workshop name cannot be empty or '-' for this action!");
+            throw new InvalidCommandException("ERROR: Workshop name cannot be empty or '-' for this action!");
             //if date field is empty or "-", throws corresponding error msg
         } else if (date.isEmpty() || date.equals("-")) {
-            throw new InvalidCommandException("Date cannot be empty or '-' for this action!");
+            throw new InvalidCommandException("ERROR: Date cannot be empty or '-' for this action!");
             //if time field is empty or "-", throws corresponding error msg
         } else if (time.isEmpty() || time.equals("-")) {
-            throw new InvalidCommandException("Time cannot be empty or '-' for this action!");
+            throw new InvalidCommandException("ERROR: Time cannot be empty or '-' for this action!");
         }
     }
 }

@@ -10,11 +10,11 @@ package com.mycompany.x24528929_martinolaru;
  * Booking object 
  */
 public class WorkshopBooking {
-    int id;
-    String memberName;
-    String workshopName;
-    String date;
-    String time;
+    private int id;
+    private String memberName;
+    private String workshopName;
+    private String date;
+    private String time;
     
     //loaded constructor
     public WorkshopBooking(String memberName, String workshopName, String date, String time){
