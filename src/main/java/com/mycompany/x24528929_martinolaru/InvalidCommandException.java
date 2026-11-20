@@ -6,7 +6,8 @@ package com.mycompany.x24528929_martinolaru;
 
 /**
  *
- * @author marti
+ * @author martin
+ * 
  */
 public class InvalidCommandException extends Exception{
     
